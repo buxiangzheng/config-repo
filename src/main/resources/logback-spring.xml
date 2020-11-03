@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <property name="FILE_LOG_PATTERN"
+              value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+    <property name="SIMPLIFY_FILE_LOG_PATTERN"
+              value="${SIMPLIFY_FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} --- [%t]: %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+    <property name="LOG_BAK_PATH"
+              value="/services/tonmx/tomcat-8.5.31/logs/platform/bak"/>
+
+
+    <!-- 测试环境+开发环境. 多个使用逗号隔开. -->
+    <springProfile name="dev,carzy">
+        <!-- 控制台输出 -->
+        <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="stdout"/>
+        </root>
+    </springProfile>
+
+
+    <!-- 生产环境. -->
+    <springProfile name="pro,test">
+
+        <!-- 文件保存日志的相关配置 ERROR -->
+        <appender name="platform_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <!-- 保存日志文件的路径 -->
+            <file>${LOG_PATH}/platform_error.log</file>
+            <!-- 日志级别过滤器 -->
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <!-- 过滤的级别 -->
+                <level>ERROR</level>
+                <!-- 匹配时的操作：接收（记录） -->
+                <onMatch>ACCEPT</onMatch>
+                <!-- 不匹配时的操作：拒绝（不记录） -->
+                <onMismatch>DENY</onMismatch>
+            </filter>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_BAK_PATH}/%d{yyyy-MM-dd}.%i.platform_error_log.log</FileNamePattern>
+                <!--日志文件保留个数-->
+                <MaxHistory>7</MaxHistory>
+                <!-- 日志总保存量为10GB -->
+                <totalSizeCap>10GB</totalSizeCap>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <!--活动文件大小 -->
+                    <maxFileSize>300MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+        <!-- 文件保存日志的相关配置 INFO -->
+        <appender name="platform_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/platform_info.log</file>
+            <!-- 日志级别过滤器 -->
+            <filter class="ch.qos.logback.classic.filter.LevelFilter">
+                <!-- 过滤的级别 -->
+                <level>INFO</level>
+            </filter>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_BAK_PATH}/%d{yyyy-MM-dd}.%i.platform_info_log.log</FileNamePattern>
+                <!--日志文件保留个数-->
+                <MaxHistory>7</MaxHistory>
+                <!-- 日志总保存量为10GB -->
+                <totalSizeCap>10GB</totalSizeCap>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <!--活动文件大小 -->
+                    <maxFileSize>300MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+        <!--&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
+
+        <!-- api请求路径、参数 -->
+        <appender name="platform_access" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/platform_access.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_BAK_PATH}/%d{yyyy-MM-dd}.%i.platform_access_log.log</FileNamePattern>
+                <!--日志文件保留个数-->
+                <MaxHistory>7</MaxHistory>
+                <!-- 日志总保存量为10GB -->
+                <totalSizeCap>10GB</totalSizeCap>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <!--活动文件大小 -->
+                    <maxFileSize>300MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>${SIMPLIFY_FILE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+        <!--&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
+
+        <!-- 平台SQL日志 -->
+        <appender name="platform_sql" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/platform_sql.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_BAK_PATH}/%d{yyyy-MM-dd}.%i.platform_sql_log.log</FileNamePattern>
+                <!--日志文件保留个数-->
+                <MaxHistory>7</MaxHistory>
+                <!-- 日志总保存量为10GB -->
+                <totalSizeCap>10GB</totalSizeCap>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <!--活动文件大小 -->
+                    <maxFileSize>300MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>${SIMPLIFY_FILE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+        <!-- 存储SQL日志 -->
+        <appender name="storage_sql" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/storage_sql.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名-->
+                <FileNamePattern>${LOG_BAK_PATH}/%d{yyyy-MM-dd}.%i.storage_sql_log.log</FileNamePattern>
+                <!--日志文件保留个数-->
+                <MaxHistory>7</MaxHistory>
+                <!-- 日志总保存量为10GB -->
+                <totalSizeCap>10GB</totalSizeCap>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <!--活动文件大小 -->
+                    <maxFileSize>300MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+                <pattern>${SIMPLIFY_FILE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+        <!--接口访问日志-->
+        <logger name="com.tonmx.platform.interceptor.AccessInterceptor" additivity="false">
+            <appender-ref ref="platform_access"/>
+        </logger>
+
+        <!--平台SQL日志-->
+        <logger name="com.tonmx.platform.api.mapper" level="DEBUG" additivity="false">
+            <appender-ref ref="platform_sql"/>
+        </logger>
+
+        <!--存储SQL日志-->
+        <logger name="com.tonmx.storage.api.mapper" level="DEBUG" additivity="false">
+            <appender-ref ref="storage_sql"/>
+        </logger>
+
+        <root level="INFO">
+            <appender-ref ref="platform_info"/>
+            <appender-ref ref="platform_error"/>
+        </root>
+
+    </springProfile>
+
+
+</configuration>
